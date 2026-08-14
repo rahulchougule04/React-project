@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User Profiles / Admin records
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Academic Datasets & Files
+    match /files/{fileId} {
+      // Students and public can view published files
+      allow read: if true;
+      
+      // Only authenticated Admins can upload, update, or delete files
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // Default catch-all rule
+    match /{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
